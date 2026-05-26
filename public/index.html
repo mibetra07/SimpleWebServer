@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ HTTP Server</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <div class="scanline"></div>
+
+    <header>
+        <div class="header-inner">
+            <div class="logo">
+                <span class="logo-bracket">{</span>
+                <span class="logo-text">HTTP</span>
+                <span class="logo-bracket">}</span>
+            </div>
+            <nav>
+                <a href="/index.html" class="nav-link active">Index</a>
+                <a href="/about.html" class="nav-link">About</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+
+        <section class="hero">
+            <div class="hero-tag">GET / HTTP/1.1</div>
+            <h1 class="hero-title">
+                <span class="line1">C++ Web</span>
+                <span class="line2">Server</span>
+            </h1>
+            <p class="hero-sub">Built from scratch. No libraries. Pure TCP/IP.</p>
+            <a href="/about.html" class="cta-btn">About this Server →</a>
+        </section>
+
+        <section class="status-grid">
+            <div class="status-card" id="card-200">
+                <div class="status-code">200</div>
+                <div class="status-label">OK</div>
+                <div class="status-desc">Diese Seite wurde erfolgreich geladen.</div>
+                <div class="status-dot green"></div>
+            </div>
+            <div class="status-card" id="card-404">
+                <div class="status-code">404</div>
+                <div class="status-label">Not Found</div>
+                <div class="status-desc">
+                    <a href="/missing.html" class="test-link">Teste einen 404 →</a>
+                </div>
+                <div class="status-dot red"></div>
+            </div>
+            <div class="status-card" id="card-403">
+                <div class="status-code">403</div>
+                <div class="status-label">Forbidden</div>
+                <div class="status-desc">
+                    <a href="/../secret.html" class="test-link">Teste Path Traversal →</a>
+                </div>
+                <div class="status-dot yellow"></div>
+            </div>
+        </section>
+
+        <section class="info-section">
+            <h2 class="section-title">Stack</h2>
+            <div class="stack-grid">
+                <div class="stack-item">
+                    <span class="stack-icon">⚙</span>
+                    <span class="stack-name">C++17</span>
+                    <span class="stack-detail">Sprache</span>
+                </div>
+                <div class="stack-item">
+                    <span class="stack-icon">🔌</span>
+                    <span class="stack-name">Winsock2</span>
+                    <span class="stack-detail">TCP/IP</span>
+                </div>
+                <div class="stack-item">
+                    <span class="stack-icon">🧵</span>
+                    <span class="stack-name">Thread Pool</span>
+                    <span class="stack-detail">Concurrency</span>
+                </div>
+                <div class="stack-item">
+                    <span class="stack-icon">📁</span>
+                    <span class="stack-name">Static Files</span>
+                    <span class="stack-detail">HTML/CSS/JS</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="request-section">
+            <h2 class="section-title">Live Request</h2>
+            <div class="request-box">
+                <div class="request-line">
+                    <span class="req-method">GET</span>
+                    <span class="req-path">/index.html</span>
+                    <span class="req-proto">HTTP/1.1</span>
+                </div>
+                <div class="request-line dim">Host: localhost:8080</div>
+                <div class="request-line dim">Connection: close</div>
+                <div class="request-line dim">Accept: text/html</div>
+            </div>
+            <div class="response-box">
+                <div class="request-line">
+                    <span class="res-proto">HTTP/1.1</span>
+                    <span class="res-status ok">200 OK</span>
+                </div>
+                <div class="request-line dim">Content-Type: text/html; charset=UTF-8</div>
+                <div class="request-line dim">Connection: close</div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <span>Built with C++ · No frameworks · No dependencies</span>
+    </footer>
+
+    <script src="/js/main.js"></script>
+
+</body>
+</html>

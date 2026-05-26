@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About – C++ HTTP Server</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <div class="scanline"></div>
+
+    <header>
+        <div class="header-inner">
+            <div class="logo">
+                <span class="logo-bracket">{</span>
+                <span class="logo-text">HTTP</span>
+                <span class="logo-bracket">}</span>
+            </div>
+            <nav>
+                <a href="/index.html" class="nav-link">Index</a>
+                <a href="/about.html" class="nav-link active">About</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+
+        <section class="hero">
+            <div class="hero-tag">GET /about.html HTTP/1.1</div>
+            <h1 class="hero-title">
+                <span class="line1">Über diesen</span>
+                <span class="line2">Server</span>
+            </h1>
+            <p class="hero-sub">Wie er funktioniert – von TCP bis HTTP.</p>
+            <a href="/index.html" class="cta-btn">← Zurück zur Startseite</a>
+        </section>
+
+        <section class="info-section">
+            <h2 class="section-title">Architektur</h2>
+            <div class="arch-list">
+                <div class="arch-item">
+                    <div class="arch-num">01</div>
+                    <div class="arch-content">
+                        <div class="arch-title">Platform.h</div>
+                        <div class="arch-desc">
+                            Abstrahiert Windows (Winsock2) und Unix (POSIX)
+                            hinter einheitlichen Funktionen wie
+                            <code>initNetwork()</code>, <code>closeSocket()</code>
+                            und <code>getLastError()</code>.
+                        </div>
+                    </div>
+                </div>
+                <div class="arch-item">
+                    <div class="arch-num">02</div>
+                    <div class="arch-content">
+                        <div class="arch-title">Client</div>
+                        <div class="arch-desc">
+                            Kapselt einen TCP-Socket mit RAII – der Destruktor
+                            schließt den Socket automatisch. Move-Semantik
+                            ermöglicht sichere Übergabe an den Thread Pool.
+                        </div>
+                    </div>
+                </div>
+                <div class="arch-item">
+                    <div class="arch-num">03</div>
+                    <div class="arch-content">
+                        <div class="arch-title">ThreadPool</div>
+                        <div class="arch-desc">
+                            Feste Anzahl Worker-Threads
+                            (<code>hardware_concurrency() × 2</code>).
+                            Clients warten in einer Queue – Threads schlafen
+                            via <code>condition_variable</code> bis Arbeit da ist.
+                        </div>
+                    </div>
+                </div>
+                <div class="arch-item">
+                    <div class="arch-num">04</div>
+                    <div class="arch-content">
+                        <div class="arch-title">WebServer</div>
+                        <div class="arch-desc">
+                            Parst HTTP-Requests, löst Pfade auf,
+                            schützt gegen Path Traversal und liefert
+                            statische Dateien mit korrektem Content-Type aus.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="info-section">
+            <h2 class="section-title">Unterstützte Dateitypen</h2>
+            <div class="types-grid">
+                <div class="type-item"><span>.html</span>text/html</div>
+                <div class="type-item"><span>.css</span>text/css</div>
+                <div class="type-item"><span>.js</span>application/javascript</div>
+                <div class="type-item"><span>.json</span>application/json</div>
+                <div class="type-item"><span>.png</span>image/png</div>
+                <div class="type-item"><span>.jpg</span>image/jpeg</div>
+                <div class="type-item"><span>.ico</span>image/x-icon</div>
+                <div class="type-item"><span>.txt</span>text/plain</div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <span>Built with C++ · No frameworks · No dependencies</span>
+    </footer>
+
+    <script src="/js/main.js"></script>
+
+</body>
+</html>
