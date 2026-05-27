@@ -171,7 +171,7 @@ namespace http
 		file.seekg(0, std::ios::beg);
 		//convert file into string
 		std::string body(static_cast<std::size_t>(file_size), '\0');
-		if (!file.read(body.data(), file_size))
+		if (!file.read(&body[0], file_size))
 		{
 			return buildResponse(buildErrorHTML("500 Internal Server Error"), 500); //Internal Server Error
 		}
@@ -183,7 +183,7 @@ namespace http
 	void WebServer::handleClient(Client client)
 	{
 		std::vector<char> buffer(m_buffer_size);
-		int bytes_received{ recv(client.m_client_fd, buffer.data(), m_buffer_size - 1, 0) };
+		SockResult bytes_received{ recv(client.m_client_fd, buffer.data(), m_buffer_size - 1, 0) };
 		if (bytes_received == SOCKET_ERR)
 		{
 			logError("recv() failed: " + getLastError());
@@ -215,7 +215,7 @@ namespace http
 			response = serveFile(path);
 		}
 		//send response
-		int bytes_sent{ send(client.m_client_fd, response.c_str(), static_cast<int>(response.size()), 0) };
+		SockResult bytes_sent{ send(client.m_client_fd, response.c_str(), static_cast<int>(response.size()), 0) };
 		if (bytes_sent == SOCKET_ERR)
 		{
 			logError("send() failed: " + getLastError());

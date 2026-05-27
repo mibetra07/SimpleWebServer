@@ -9,6 +9,8 @@
 	#pragma comment(lib, "ws2_32.lib")
 
 	using SocketType = SOCKET;
+	using SockResult = int;
+	using SockLen = int;
 	using WsaData = WSADATA;
 	constexpr SocketType INVALID_SOCK = INVALID_SOCKET;
 	constexpr int SOCKET_ERR = SOCKET_ERROR;
@@ -39,6 +41,8 @@
 	#include <cerrno>
 
 	using SocketType = int;
+	using SockResult = ssize_t;
+	using SockLen = socklen_t;
 	struct WsaData {};
 	constexpr SocketType INVALID_SOCK = -1;
 	constexpr int SOCKET_ERR = -1;

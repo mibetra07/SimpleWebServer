@@ -12,7 +12,7 @@ namespace http
 	{
 	private:
 		sockaddr_in m_address;
-		int m_address_len;
+		SockLen m_address_len;
 		SocketType m_client_fd;
 		std::array<char, INET_ADDRSTRLEN> m_ip;
 	public:

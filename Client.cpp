@@ -2,7 +2,7 @@
 
 namespace http
 {
-	Client::Client() : m_address{}, m_address_len{ sizeof(m_address) },
+	Client::Client() : m_address{}, m_address_len{ static_cast <SockLen>(sizeof(m_address)) },
 		m_client_fd{ INVALID_SOCK }, m_ip{}
 	{
 	}
