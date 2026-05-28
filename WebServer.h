@@ -4,12 +4,15 @@
 #include "Platform.h"
 #include "Client.h" 
 #include "ThreadPool.h"
+#include "Request.h"
 
 #include <iostream>
 #include <string>
 #include <vector>
 #include <fstream>
 #include <mutex>
+#include <algorithm>
+#include <sstream>
 
 namespace http
 {
@@ -22,7 +25,7 @@ namespace http
 								{
 									handleClient(std::move(client));
 								} }; 
-
+		//network variables
 		WsaData m_wsaData{};
 		SocketType m_server_fd{ INVALID_SOCK };
 		const int m_port{};
@@ -35,11 +38,14 @@ namespace http
 		bool startListening() const;
 		//run
 		void handleClient(Client client);
+		Request receiveRequest(SocketType client_fd);
 		std::string buildResponse(const std::string& body, int status_code, const std::string& content_type = "text/html; charset=UTF-8");
 		std::string serveFile(const std::string& request_path);
 		static std::string getContentType(const std::string& path);
 		static std::string resolvePath(const std::string& request_path);
 		static std::string buildErrorHTML(const std::string& message);
+		static void parseHeader(const std::string& raw, Request& request);
+		
 		//log
 		void log(const std::string& message);
 		void logError(const std::string& message);

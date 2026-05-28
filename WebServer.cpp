@@ -178,41 +178,120 @@ namespace http
 
 		return buildResponse(body, 200, getContentType(resolved_path));
 	}
+	//configure request struct
+	void WebServer::parseHeader(const std::string& raw, Request& request)
+	{
+		std::istringstream stream{ raw };
+		std::string line{};
+		//first line: "GET /path HTTP/1.1"
+		if (std::getline(stream, line))
+		{
+			//delete \r if at the end
+			if (!line.empty() && line.back() == '\r')
+				line.pop_back();
+			std::istringstream first_line{ line };
+			//write method and path into request
+			first_line >> request.method >> request.path;
+		}
+		//read rest of the lines and write headers and their content into request
+		while (std::getline(stream, line))
+		{
+			//delete \r if at the end
+			if (!line.empty() && line.back() == '\r')
+				line.pop_back();
+			//find start of the content of that header
+			std::size_t colon{ line.find(':') };
+			if (colon != std::string::npos)
+			{
+				std::string name{ line.substr(0, colon) };
+				std::string value{ line.substr(colon + 2) };
+				request.headers[name] = value;
+			}
+		}
+	}
 
+	Request WebServer::receiveRequest(SocketType client_fd)
+	{
+		Request request{};
+		std::string raw_header{};
+		//read header till \r\n\r\n
+		std::vector<char> chunk(m_buffer_size);
+		while (true)
+		{
+			//append m_buffer_size bytes from client to string
+			SockResult bytes{ recv(client_fd, chunk.data(), m_buffer_size - 1, 0) };
+			if (bytes == SOCKET_ERR)
+			{
+				logError("recv() failed while reading header: " + getLastError());
+				return Request{};
+			}
+			if (bytes <= 0)
+				return request;
+			raw_header.append(chunk.data(), static_cast<std::size_t>(bytes));
+			//check if header is complete
+			std::size_t header_end{ raw_header.find("\r\n\r\n") };
+			if (header_end != std::string::npos)
+			{
+				//start of the body that got sent with end of header
+				std::string body_start{ raw_header.substr(header_end + 4) };
+				//complete raw header
+				raw_header = raw_header.substr(0, header_end);
+
+				parseHeader(raw_header, request);
+				//complete body
+				std::size_t content_length{ request.getContentLength() };
+				if (content_length > 0)
+				{
+					//append start of the body
+					request.body.reserve(content_length);
+					request.body.append(body_start);
+					//append rest of the body
+					while (request.body.size() < content_length)
+					{
+						std::size_t remaining{ content_length - request.body.size() };
+						std::size_t to_read{ std::min<std::size_t>(
+											 remaining, static_cast<std::size_t>(m_buffer_size)) };
+						//receive next chunk of bytes
+						SockResult body_bytes{ recv(client_fd, chunk.data(), static_cast<int>(to_read), 0) };
+						if (bytes == SOCKET_ERR)
+						{
+							logError("recv() failed while reading body: " + getLastError());
+							return Request{};
+						}
+						//no bytes were sent
+						if (body_bytes <= 0)
+							break;
+						//append chunk to body
+						request.body.append(chunk.data(), static_cast<std::size_t>(body_bytes));
+					}
+				}
+				break;
+			}
+		}
+		return request;
+	}
 	//Client handling
+	//TODO: rewrite so response is sent in multiple segments, if needed (check size of file in GET)
 	void WebServer::handleClient(Client client)
 	{
-		std::vector<char> buffer(m_buffer_size);
-		SockResult bytes_received{ recv(client.m_client_fd, buffer.data(), m_buffer_size - 1, 0) };
-		if (bytes_received == SOCKET_ERR)
-		{
-			logError("recv() failed: " + getLastError());
-			return;
-		}
-		if (bytes_received == 0)
+		//receive request
+		Request request{ receiveRequest(client.m_client_fd) };
+		if (request.method.empty())
 		{
 			log("Client disconnected.");
 			return;
 		}
-		//Parse request
-		std::string request{ buffer.data(), static_cast<std::size_t>(bytes_received) };
-		std::string first_line{ request.substr(0, request.find('\r')) };
-		std::string method{ first_line.substr(0, first_line.find(' ')) };
-		std::string path{	first_line.substr(first_line.find(' ') + 1,
-							first_line.rfind(' ') - first_line.find(' ') - 1
-		) };
 
-		log("Method: " + method + "\nPath: " + path);
-
+		log("Method: " + request.method + "\nPath: " + request.path);
 		//build response according to method in request
 		std::string response{};
-		if (method != "GET") //only GET is allowed
+		if (request.method == "GET")
 		{
-			response = buildResponse(buildErrorHTML("405 Method Not Allowed"), 405);
+			response = serveFile(request.path);
 		}
 		else
 		{
-			response = serveFile(path);
+			response = buildResponse(buildErrorHTML("405 Method Not Allowed"), 405);
 		}
 		//send response
 		SockResult bytes_sent{ send(client.m_client_fd, response.c_str(), static_cast<int>(response.size()), 0) };
